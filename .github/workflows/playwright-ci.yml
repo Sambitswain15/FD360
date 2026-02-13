@@ -1,0 +1,45 @@
+name: Playwright CI — run tests + deploy HTML report
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  test:
+    name: Run Playwright tests and produce HTML report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Playwright tests (HTML reporter)
+        run: npx playwright test --reporter=html
+
+      - name: Upload Playwright HTML report as Pages artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: playwright-report
+
+  deploy:
+    name: Deploy HTML report to GitHub Pages
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1
