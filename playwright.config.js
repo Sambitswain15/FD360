@@ -4,7 +4,8 @@ const config = {
 
   use: {
     baseURL: 'https://dev.fleetdrive360.com', // ✅ IMPORTANT
-    headless: false,
+    // Run headed locally but force headless on CI runners
+    headless: process.env.CI ? true : false,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     trace: 'on-first-retry',
@@ -12,7 +13,8 @@ const config = {
 
   reporter: [
     ['list'],
-    ['html', { open: 'always' }]
+    // Do not attempt to open the HTML report on CI
+    ['html', { open: process.env.CI ? 'never' : 'always' }]
   ],
 };
 
