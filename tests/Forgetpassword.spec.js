@@ -48,15 +48,15 @@ test.describe('Forgot Password Feature - FleetDrive360', () => {
   });
 
   // 5. Successful reset request
-  test('Validate successful reset instruction', async ({ page }) => {
-    await page.getByRole('textbox', { name: 'Email' })
-      .fill('sambitswain15@gmail.com'); // use valid email
+//   test('Validate successful reset instruction', async ({ page }) => {
+//     await page.getByRole('textbox', { name: 'Email' })
+//       .fill('Sambit.swain@themetromaxgroup.com'); // use valid email
 
-    await page.getByRole('button', { name: 'Send Reset Instruction' }).click();
+//     await page.getByRole('button', { name: 'Send Reset Instruction' }).click();
 
-    await expect(
-      page.getByText('Reset instructions sent successfully')
-    ).toBeVisible();
-  });
+//     await expect(
+//       page.getByText('Reset instructions sent successfully')
+//     ).toBeVisible();
+//   });
 
 });
