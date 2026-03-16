@@ -50,7 +50,7 @@ test.describe('FD360 Login Scenarios', () => {
     await page.getByRole('textbox', { name: 'Username' }).fill('sambittest');
     await page.getByRole('button', { name: 'Login' }).click();
 
-    await expect(page.getByText('Password is require')).toBeVisible();
+    await expect(page.getByText('Password is rrequired.)).toBeVisible();
   });
 
   // BOTH FIELDS BLANK
