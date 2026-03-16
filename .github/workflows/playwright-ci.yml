@@ -1,5 +1,8 @@
 name: Playwright CI — run tests + deploy Allure report
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     branches: [ main, master ]
@@ -21,8 +24,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Checkout previous GitHub Pages content (for Allure history)
-      - name: Checkout GitHub Pages
+      # Checkout GitHub Pages branch for Allure history
+      - name: Checkout GitHub Pages branch
         uses: actions/checkout@v4
         with:
           ref: gh-pages
@@ -50,7 +53,7 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test --reporter=line,allure-playwright
 
-      # Copy previous history
+      # Restore history from previous report
       - name: Restore Allure history
         run: |
           if [ -d "gh-pages/history" ]; then
@@ -58,7 +61,7 @@ jobs:
             cp -r gh-pages/history/* allure-results/history/
           fi
 
-      # Environment info + timestamp
+      # Add environment info + timestamp
       - name: Add Allure Environment Info
         if: always()
         run: |
@@ -70,7 +73,7 @@ jobs:
           echo "CI=GitHub Actions" >> allure-results/environment.properties
           echo "Execution_Time=$(date)" >> allure-results/environment.properties
 
-      # Failure categories
+      # Add failure categories
       - name: Add Allure Categories
         if: always()
         run: |
@@ -94,7 +97,7 @@ jobs:
       # Save history for next run
       - name: Save Allure history
         run: |
-          mkdir -p allure-report/history
+          mkdir -p gh-pages
           cp -r allure-report/history gh-pages/ || true
 
       - name: Upload Allure report as Pages artifact
