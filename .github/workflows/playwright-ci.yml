@@ -8,7 +8,7 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -20,6 +20,14 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      # Checkout previous GitHub Pages content (for Allure history)
+      - name: Checkout GitHub Pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+        continue-on-error: true
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -35,14 +43,22 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      # 🔴 IMPORTANT FIX
+      # Clean previous results
       - name: Clean previous Allure results
         run: rm -rf allure-results allure-report
 
-      - name: Run Playwright tests (Allure reporter)
+      - name: Run Playwright tests
         run: npx playwright test --reporter=line,allure-playwright
 
-      # Environment details in Allure report
+      # Copy previous history
+      - name: Restore Allure history
+        run: |
+          if [ -d "gh-pages/history" ]; then
+            mkdir -p allure-results/history
+            cp -r gh-pages/history/* allure-results/history/
+          fi
+
+      # Environment info + timestamp
       - name: Add Allure Environment Info
         if: always()
         run: |
@@ -52,6 +68,7 @@ jobs:
           echo "BaseURL=https://dev.fleetdrive360.com" >> allure-results/environment.properties
           echo "Framework=Playwright" >> allure-results/environment.properties
           echo "CI=GitHub Actions" >> allure-results/environment.properties
+          echo "Execution_Time=$(date)" >> allure-results/environment.properties
 
       # Failure categories
       - name: Add Allure Categories
@@ -74,12 +91,11 @@ jobs:
         if: always()
         run: allure generate allure-results --clean -o allure-report
 
-      - name: Upload Allure report (artifact)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-report
-          path: allure-report
+      # Save history for next run
+      - name: Save Allure history
+        run: |
+          mkdir -p allure-report/history
+          cp -r allure-report/history gh-pages/ || true
 
       - name: Upload Allure report as Pages artifact
         if: always()
