@@ -38,7 +38,7 @@ test.describe('Forgot Password Feature - FleetDrive360', () => {
   // 4. Email not linked to account
   test('Validate unregistered email error', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Email' })
-      .fill('notregistered@test.com');
+      .fill('ntregistered@test.com');
 
     await page.getByRole('button', { name: 'Send Reset Instruction' }).click();
 
